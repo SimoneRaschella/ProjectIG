@@ -1,16 +1,21 @@
 #include <GL/glut.h>
 #include <cmath>
+#include <cassert>
 #include <iostream>
+#include <fstream>
+#include "maze.h"
 using namespace std;
 
 # define M_PI 3.14159265358979323846
 
-//GLfloat posRedCube[3] = { 50, 50, 2.5 };
-//GLfloat posBlueSphere[3] = { 70, -20, 2.5 };
 GLint alpha = 90;
 GLdouble alphaRad = alpha * M_PI / 180;
-GLdouble gamePosition[3] = {0.0 ,0.0 ,1.0};
-GLdouble gameForward [3] = {cos(alphaRad), sin(alphaRad), 1.0};
+GLdouble gamePosition[3] = {3.0 ,3.0 ,1.0};
+GLdouble gameForward [3] = {cos(alphaRad) + 3.0, sin(alphaRad) + 3.0, 1.0};
+const GLdouble DIMENSION_SQUARE = 2.0;
+int NUMBER_CELL = 50;
+const GLdouble DIMENSION_MAZE = DIMENSION_SQUARE * NUMBER_CELL; 
+Maze maze(50);
 
 
 void init(){
@@ -36,6 +41,10 @@ void reshape(int w, int h){
 }
 
 void display(){
+	ifstream fin;
+	fin.open("maze.txt");
+	assert (fin.is_open());
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glPushMatrix();
 	gluLookAt(gamePosition[0], gamePosition[1], gamePosition[2],
@@ -43,38 +52,55 @@ void display(){
 		  0.0, 0.0, 1.0);
 	
 	glPushMatrix();
-	//for (int i = 0; i < 50; i++){
-	//	for (int j = 0; j < 50; j++){
-	//		if ((i+j) % 2 == 0)
-	//			glColor3f(0.0, 0.0, 0.7);
-	//		else
+	for (int i = 0; i < NUMBER_CELL; i++){
+		for (int j = 0; j < NUMBER_CELL; j++){
+			char number;
+			fin >> number;
+			if (number == '1'){
+			  maze.setAt(i,j,true);
+			  glPushMatrix();
+			    glColor3f(1.0, 1.0, 1.0);
+			    glTranslatef(DIMENSION_SQUARE/2, DIMENSION_SQUARE/2, 1.0);
+			    glutSolidCube (2.0);
+			  glPopMatrix();
+			} else {
+			  maze.setAt(i,j,false);
+			if ((i+j) % 2 == 0)
+				glColor3f(0.0, 0.0, 0.7);
+			else
 				glColor3f(0.7, 0.7, 0.7);
 
 			glBegin(GL_POLYGON);
 			glVertex2f(0.0, 0.0);
-			glVertex2f(100.0, 0.0);
-			glVertex2f(100.0, 100.0);
-			glVertex2f(0.0, 100.0);
+			glVertex2f(DIMENSION_SQUARE, 0.0);
+			glVertex2f(DIMENSION_SQUARE, DIMENSION_SQUARE);
+			glVertex2f(0.0, DIMENSION_SQUARE);
 			glEnd();
-
-	//		glTranslatef(2.0, 0.0, 0.0);
-	/*	}
-		glTranslatef(0.0, 2.0, 0.0);
-		glTranslatef(-100.0, 0.0, 0.0);
-	}*/
-	//glPopMatrix();
-	
-	/*glPushMatrix();
-		glTranslatef(posRedCube[0], posRedCube[1], posRedCube[2]);
-		glColor3f(1.0, 0.0, 0.0);
-		glutSolidCube(5);
+			}
+			glTranslatef(DIMENSION_SQUARE,0.0, 0.0);
+		}
+		glTranslatef(0.0, DIMENSION_SQUARE, 0.0);
+		glTranslatef((-1)*DIMENSION_MAZE, 0.0, 0.0);
+	}
 	glPopMatrix();
-
+	
 	glPushMatrix();
-		glTranslatef(posBlueSphere[0], posBlueSphere[1], posBlueSphere[2]);
-		glColor3f(0.0, 0.0, 1.0);
-		glutSolidSphere(5, 50, 50);
-	glPopMatrix();*/
+	  glTranslatef(0.0,0.0, DIMENSION_SQUARE);
+	  for (int i = 0; i < NUMBER_CELL; i++){
+	    for (int j = 0; j < NUMBER_CELL; j++){
+	      if (maze.getAt(i,j)){
+		glPushMatrix();
+		  glColor3f(1.0, 0.0, 0.0);
+		  glTranslatef(DIMENSION_SQUARE/2, DIMENSION_SQUARE/2, 1.0);
+		  glutSolidCube (2.0);
+		glPopMatrix();
+	      }
+	      glTranslatef(DIMENSION_SQUARE,0.0, 0.0);
+	    }
+	    glTranslatef(0.0, DIMENSION_SQUARE, 0.0);
+	    glTranslatef((-1)*DIMENSION_MAZE, 0.0, 0.0);
+	  }
+	glPopMatrix();
 
 	glPopMatrix();
 

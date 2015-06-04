@@ -32,6 +32,17 @@ public:
   bool getAt(int i, int j){
     return matrix[i][j];
   }
+  
+  void print() {
+    for (int i = 0; i < dimension; i++){
+      for (int j = 0; j < dimension; j++){
+	cout << matrix[i][j] << " ";
+	
+      }
+      cout << endl;
+    }
+    
+  }
 };
 
 #endif
